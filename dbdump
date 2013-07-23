@@ -1,0 +1,39 @@
+#!/bin/bash
+
+###########################################################
+# A script to find, dump, and gzip a database for the     #
+# current project.                                        #
+# Current supported project types:                        #
+#   * Symfony 1.x                                         #
+############################################################
+
+ERR_NO_CONFIG=1
+ERR_DB_EXPORT=2
+
+ORIG_PATH=$PWD
+DBCONFIG="config/databases.yml"
+if [ ! -f "${DBCONFIG}" ]; then
+  #-- Try to CD up to a trunk folder
+  while [ -n "${PWD##*/}" -a "trunk" != "${PWD##*/}" ]; do cd ..; done
+  if [ ! -f "${DBCONFIG}" ]; then
+    echo "Could not find ${DBCONFIG}"
+    exit $ERR_NO_CONFIG
+  fi
+fi
+
+DBNAME=`sed -ne"s/^[^#].*dbname=\([^;' ]*\).*/\1/p" ${DBCONFIG} | head -n1`
+USERNAME=`sed -ne"s/^[^#].*username:[' ]*\([^;' ]*\).*/\1/p" ${DBCONFIG} | head -n1`
+PASSWORD=`sed -ne"s/^[^#].*password:[' ]*\([^;' ]*\).*/\1/p" ${DBCONFIG} | head -n1`
+HOST=`sed -ne"s/^[^#].*host=\([^;'\'' ]*\).*/\1/p" ${DBCONFIG} | head -n1`
+DATE=`date '+%Y-%m-%d-%H%M'`
+
+mysqldump -h ${HOST} --opt -u ${USERNAME} -p${PASSWORD} --databases ${DBNAME} | gzip > data/${DBNAME}-${DATE}.sql.gz
+ret=$?
+if [ 0 -ne $ret ]; then
+  echo "Error exporting Database."
+  exit $ERR_DB_EXPORT
+fi
+
+echo "Database backed up to:  data/${DBNAME}-${DATE}.sql.gz"
+
+cd $ORIG_PATH
