@@ -19,7 +19,7 @@ for f in $BINS; do
     break;
   fi
 done
-if [ -z "${PHPCS_BIN}" ]; then
+if [ -z "${PHP_BIN}" ]; then
   exit $EXIT_NOPHP
 fi
 
