@@ -1,4 +1,4 @@
-BASH_UTILS_DIR="$HOME/bin/bash-utils"
+BASH_UTILS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
 #-- Show the git branch for the current folder
