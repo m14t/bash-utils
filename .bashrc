@@ -9,3 +9,4 @@ complete -W "$(echo `cat ~/.ssh/known_hosts | cut -f 1 -d ' ' | sed -e 's/,.*//g
 
 source "$BASH_UTILS_DIR/lib/git-completion.bash"
 source "$BASH_UTILS_DIR/lib/z.sh"
+source "$BASH_UTILS_DIR/.cd.."
