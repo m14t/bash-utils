@@ -1,12 +1,12 @@
 #!/bin/bash -x
 
 ###########################################################
-# A script to cd up the directory tree until you reach    #
-# the specified folder                                    #
+# A script to cd up the directory tree until you reach a  #
+# folder that contains the first argurment                #
 ############################################################
 
 function cd..() {
-  while [ -n "${PWD##*/}" -a "$1" != "${PWD##*/}" ];
-    do cd ..
+  while [ -n "${PWD##*/}" -a "`basename $PWD`" = "`basename ${PWD/$1/}`" ]; do
+    cd ..
   done
 }
