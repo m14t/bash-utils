@@ -5,8 +5,14 @@
 # folder that contains the first argurment                #
 ############################################################
 
+ORIG="$PWD"
 function cd..() {
   while [ -n "${PWD##*/}" -a "`basename $PWD`" = "`basename ${PWD/$1/}`" ]; do
     cd ..
   done
+  DEST="$PWD"
+
+  #-- Do it all in one move so that `cd -` still works
+  cd "$ORIG"
+  cd "$DEST"
 }
