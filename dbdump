@@ -7,33 +7,84 @@
 #   * Symfony 1.x                                         #
 ############################################################
 
+#-- Exit codes
 ERR_NO_CONFIG=1
 ERR_DB_EXPORT=2
 
+#-- Global variables
 ORIG_PATH=$PWD
-DBCONFIG="config/databases.yml"
-if [ ! -f "${DBCONFIG}" ]; then
-  #-- Try to CD up to a trunk folder
-  while [ -n "${PWD##*/}" -a "trunk" != "${PWD##*/}" ]; do cd ..; done
-  if [ ! -f "${DBCONFIG}" ]; then
-    echo "Could not find ${DBCONFIG}"
-    exit $ERR_NO_CONFIG
-  fi
-fi
+SYMFONY1_DB_FILE="config/databases.yml"
+SYMFONY2_DB_FILE="app/config/parameters.yml"
+DATABASE_CONFIGS="$SYMFONY1_DB_FILE $SYMFONY2_DB_FILE"
 
-DBNAME=`sed -ne"s/^[^#].*dbname=\([^;' ]*\).*/\1/p" ${DBCONFIG} | head -n1`
-USERNAME=`sed -ne"s/^[^#].*username:[' ]*\([^;' ]*\).*/\1/p" ${DBCONFIG} | head -n1`
-PASSWORD=`sed -ne"s/^[^#].*password:[' ]*\([^;' ]*\).*/\1/p" ${DBCONFIG} | head -n1`
-HOST=`sed -ne"s/^[^#].*host=\([^;'\'' ]*\).*/\1/p" ${DBCONFIG} | head -n1`
+function dump_database {
+  local dst="$1"
+  mysqldump -h ${HOST} --opt -u ${USERNAME} -p${PASSWORD} --databases ${DBNAME} | gzip > "$dst"
+  return $ret
+}
+
+function find_dir_for_file {
+  local search="$1"
+
+  while [ ! -f "${search}" -a "/" != "$PWD" ]; do
+    cd ..
+  done
+  if [ -f "${search}" ]; then
+    echo "$PWD"
+    return 0
+  fi
+  return 1
+}
+
+function parse_symfony_1 {
+  local db_config="$1"
+  DBNAME=`sed -ne"s/^[^#].*dbname=\([^;' ]*\).*/\1/p" ${db_config} | head -n1`
+  USERNAME=`sed -ne"s/^[^#].*username:[' ]*\([^;' ]*\).*/\1/p" ${db_config} | head -n1`
+  PASSWORD=`sed -ne"s/^[^#].*password:[' ]*\([^;' ]*\).*/\1/p" ${db_config} | head -n1`
+  HOST=`sed -ne"s/^[^#].*host=\([^;'\'' ]*\).*/\1/p" ${db_config} | head -n1`
+}
+
+function parse_symfony_2 {
+  local db_config="$1"
+  DBNAME=`sed -ne"s/^[^#].*database_name:[' ]*\([^' ]*\).*/\1/p" ${db_config} | head -n1`
+  USERNAME=`sed -ne"s/^[^#].*database_user:[' ]*\([^' ]*\).*/\1/p" ${db_config} | head -n1`
+  PASSWORD=`sed -ne"s/^[^#].*database_password:[' ]*\([^' ]*\).*/\1/p" ${db_config} | head -n1`
+  HOST=`sed -ne"s/^[^#].*database_host:[' ]\([^' ]*\).*/\1/p" ${db_config} | head -n1`
+}
+
+
+#----------#
+#-- MAIN --#
+#----------#
+
 DATE=`date '+%Y-%m-%d-%H%M'`
 
-mysqldump -h ${HOST} --opt -u ${USERNAME} -p${PASSWORD} --databases ${DBNAME} | gzip > data/${DBNAME}-${DATE}.sql.gz
+#-- Find the db file
+for f in $DATABASE_CONFIGS; do
+  project_dir=$(find_dir_for_file "$f")
+  if [ "0" == "$?" ]; then
+    db_config="$project_dir/$f"
+    break;
+  fi
+done
+if [ -z "$db_config" ]; then
+  echo "Could not find a database config file."
+  exit $ERR_NO_CONFIG
+fi
+
+if [ "$db_config" != "${db_config/${SYMFONY1_DB_FILE}/}" ]; then
+  parse_symfony_1 "$db_config"
+  database_dst="${project_dir}/data/${DBNAME}-${DATE}.sql.gz"
+elif [ "$db_config" != "${db_config/${SYMFONY2_DB_FILE}/}" ]; then
+  parse_symfony_2 "$db_config"
+  database_dst="${project_dir}/app/Resources/${DBNAME}-${DATE}.sql.gz"
+fi
+
+dump_database "$database_dst"
 ret=$?
 if [ 0 -ne $ret ]; then
   echo "Error exporting Database."
   exit $ERR_DB_EXPORT
 fi
 
-echo "Database backed up to:  data/${DBNAME}-${DATE}.sql.gz"
-
-cd $ORIG_PATH
+echo "Database backed up to:  ${database_dst}"
