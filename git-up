@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# This is a short cut that aliases `git up` to:
+#     1. checkout master
+#     2. do a `git pull -r`
+#     3. switch back to your previous branch
+#     4. do a `git rebase master`
+
+BRANCH=$(git name-rev HEAD 2> /dev/null | awk "{ print \$2 }")
+
+git checkout master && \
+git pull -r && \
+git checkout "$BRANCH" && \
+git rebase master
