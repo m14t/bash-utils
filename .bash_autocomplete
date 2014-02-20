@@ -1,0 +1,6 @@
+#!/bin/bash
+
+BASH_UTILS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source "$BASH_UTILS_DIR/.bash_autocomplete_hub"
+source "$BASH_UTILS_DIR/.bash_autocomplete_npm"

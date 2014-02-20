@@ -1,0 +1,28 @@
+#!/bin/bash
+
+_hub() {
+    local cur
+    cur=${COMP_WORDS[COMP_CWORD]}
+
+    local REMOTES="`git remote -v | sed -ne's/.*git@github.com:\([^\/]*\).*/\1/p' | sort -u`"
+
+    case "${cur}" in
+        -h) use="$REMOTES" ;;
+        -h*:) use="test" ;;
+        a*) use="add" ;;
+        b*) use="bisect branch browse" ;;
+        c*) use="checkout clone commit compare create" ;;
+        d*) use="diff" ;;
+        f*) use="fetch fork" ;;
+        g*) use="grep" ;;
+        i*) use="init" ;;
+        l*) use="log" ;;
+        m*) use="merge mv" ;;
+        p*) use="pull pull-request push" ;;
+        r*) use="rebase remote reset rm" ;;
+        s*) use="show status" ;;
+        t*) use="tag" ;;
+    esac
+    COMPREPLY=( $( compgen -W "$use" -- $cur ) )
+}
+complete -o default -F _hub hub
