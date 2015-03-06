@@ -16,4 +16,4 @@ fi
 git checkout "$TARGET" && \
 git pull -r && \
 git checkout "$BRANCH" && \
-git rebase "$TARGET"
+git rebase --preserve-merges "$TARGET"
