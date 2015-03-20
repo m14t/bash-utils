@@ -7,7 +7,24 @@ color_bold_purple="\[\e[35;1m\]"
 color_bold_yellow="\[\e[33;1m\]"
 
 #-- Show the git branch for the current folder
-export PS1="${color_bold_blue}\W${color_reset}:${color_bold_purple}\`git branch 2> /dev/null | grep -e ^* | sed -E  s/^\\\\\\\\\*\ \(.+\)$/\(\\\\\\\\\1\)\/\`${color_bold_yellow}\`git diff-index --quiet HEAD 2> /dev/null || echo '*'\`${color_reset}$ "
+function getGitPromptMessage {
+    PROMPT=""
+    MODIFIED=""
+    BRANCH=$(git name-rev HEAD 2> /dev/null | awk "{ print \$2 }")
+
+    if [ -n "$BRANCH" ]; then
+        #-- Find out if we have any modifications
+        git diff-index --quiet HEAD 2> /dev/null
+        if [ 1 -eq $? ]; then
+            MODIFIED="*"
+        fi
+
+        PROMPT="${PROMPT}(${BRANCH}${MODIFIED})"
+    fi
+
+    echo "${PROMPT}"
+}
+export PS1="${color_bold_blue}\W${color_reset}:${color_bold_purple}\$(getGitPromptMessage | sed -e 's/\*/${color_bold_yellow}*${color_bold_purple}/')${color_reset}$ "
 
 #-- Add bash autocompletion to ssh commands
 complete -W "$(echo `cat ~/.ssh/known_hosts | cut -f 1 -d ' ' | sed -e 's/,.*//g;s/.*\[\([^\]*\)].*/\1/' | uniq | grep -v "\["`;)" ssh
