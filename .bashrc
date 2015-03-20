@@ -10,7 +10,9 @@ color_bold_yellow="\[\e[33;1m\]"
 function getGitPromptMessage {
     PROMPT=""
     MODIFIED=""
-    BRANCH=$(git name-rev HEAD 2> /dev/null | awk "{ print \$2 }")
+    BRANCH="$(git symbolic-ref HEAD 2>/dev/null)" ||
+    BRANCH="(unnamed branch)"     # detached HEAD
+    BRANCH=${BRANCH##refs/heads/}
 
     if [ -n "$BRANCH" ]; then
         #-- Find out if we have any modifications

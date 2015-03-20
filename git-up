@@ -6,7 +6,10 @@
 #     3. switch back to your previous branch
 #     4. do a `git rebase $target`
 
-BRANCH=$(git name-rev HEAD 2> /dev/null | awk "{ print \$2 }")
+BRANCH="$(git symbolic-ref HEAD 2>/dev/null)" ||
+BRANCH="(unnamed branch)"     # detached HEAD
+BRANCH=${BRANCH##refs/heads/}
+
 if [ -z "$1" ]; then
 	TARGET="master"
 else
