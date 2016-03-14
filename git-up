@@ -16,7 +16,9 @@ else
 	TARGET="$1"
 fi
 
+git stash --include-untracked --keep-index && \
 git checkout "$TARGET" && \
 git pull -r && \
 git checkout "$BRANCH" && \
-git rebase --preserve-merges "$TARGET"
+git rebase --preserve-merges "$TARGET" && \
+git stash pop
