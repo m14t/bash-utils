@@ -31,6 +31,7 @@ export PS1="${color_bold_blue}\W${color_reset}:${color_bold_purple}\$(getGitProm
 complete -W "$(echo `cat ~/.ssh/known_hosts | cut -f 1 -d ' ' | sed -e 's/,.*//g;s/.*\[\([^\]*\)].*/\1/' | uniq | grep -v "\["`;)" ssh
 
 source "$BASH_UTILS_DIR/lib/git-completion.bash"
+source "$BASH_UTILS_DIR/lib/docker-compose-completion.bash"
 source "$BASH_UTILS_DIR/.bash_autocomplete"
 source "$BASH_UTILS_DIR/lib/z.sh"
 source "$BASH_UTILS_DIR/.cd.."
