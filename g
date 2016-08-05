@@ -6,4 +6,9 @@
 # in '.svn' folders.                                      #
 ############################################################
 
-grep -ir --exclude-dir='\.svn' "$@" * 2>/dev/null
+grep \
+  --exclude-dir='\.git' \
+  --exclude-dir='\.svn' \
+  --exclude-dir='node_modules' \
+  -ir \
+  "$@" * 2>/dev/null
