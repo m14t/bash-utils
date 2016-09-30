@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Default to return the 20 largest files
+LIMIT=${1:-20}
+
+git rev-list --all --objects | \
+    awk '{print $1}' | \
+    git cat-file --batch-check | \
+    sort -k3nr | \
+    head -n${LIMIT} | \
+    while read OBJECT_INFO; do
+        OBJECT_ID=`echo $OBJECT_INFO | awk '{print $1}'`
+        git rev-list --all --objects | grep $OBJECT_ID
+    done
