@@ -4,26 +4,35 @@ _npm() {
     local cur
     cur=${COMP_WORDS[COMP_CWORD]}
 
-    case "${cur}" in
-        a*) use="add-user adduser apihelp author" ;;
-        b*) use="bin bugs" ;;
-        c*) use="c cache completion config" ;;
-        d*) use="ddp dedupe deprecate docs" ;;
-        e*) use="edit explore" ;;
-        f*) use="faq find find-dupes" ;;
-        g*) use="get" ;;
-        h*) use="help help-search home" ;;
-        i*) use="i info init install isntall issues" ;;
-        l*) use="la link list ll ln login ls" ;;
-        o*) use="outdated owner" ;;
-        p*) use="pack prefix prune publish" ;;
-        r*) use="r rb rebuild remove repo restart rm root run-script" ;;
-        s*) use="s se search set show shrinkwrap star stars start stop submodule" ;;
-        t*) use="tag test tst" ;;
-        u*) use="un uninstall unlink unpublish unstar up update" ;;
-        v*) use="v version view" ;;
-        w*) use="whoami" ;;
-    esac
+    if [ "$COMP_CWORD" == "2" -a "${COMP_WORDS[1]}" == "run" ]; then
+        which -s node
+        local nodeExists=$?
+
+        if [ $nodeExists -eq 0 -a -f package.json ]; then
+          use=`node -e 'console.log(Object.keys(require("./package.json").scripts).join(" "))'`
+        fi
+    else
+        case "${cur}" in
+            a*) use="add-user adduser apihelp author" ;;
+            b*) use="bin bugs" ;;
+            c*) use="c cache completion config" ;;
+            d*) use="ddp dedupe deprecate docs" ;;
+            e*) use="edit explore" ;;
+            f*) use="faq find find-dupes" ;;
+            g*) use="get" ;;
+            h*) use="help help-search home" ;;
+            i*) use="i info init install isntall issues" ;;
+            l*) use="la link list ll ln login ls" ;;
+            o*) use="outdated owner" ;;
+            p*) use="pack prefix prune publish" ;;
+            r*) use="r rb rebuild remove repo restart rm root run-script" ;;
+            s*) use="s se search set show shrinkwrap star stars start stop submodule" ;;
+            t*) use="tag test tst" ;;
+            u*) use="un uninstall unlink unpublish unstar up update" ;;
+            v*) use="v version view" ;;
+            w*) use="whoami" ;;
+        esac
+    fi
     COMPREPLY=( $( compgen -W "$use" -- $cur ) )
 }
 complete -o default -F _npm npm
