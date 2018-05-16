@@ -1,14 +1,9 @@
 #!/bin/bash
 #
-# This is a short cut that aliases `git up [target]` to:
-#     1. checkout $target (defaults to master)
-#     2. do a `git pull -r`
-#     3. switch back to your previous branch
-#     4. do a `git rebase $target`
-
-BRANCH="$(git symbolic-ref HEAD 2>/dev/null)" ||
-BRANCH="(unnamed branch)"     # detached HEAD
-BRANCH=${BRANCH##refs/heads/}
+# This is a shortcut that aliases `git up [target="master"]` to:
+#     1. Update local $TARGET branch with the remote
+#     2. Rebase current branch from $TARGET, automatically stashing
+#        and unstashing any unstaged changes
 
 if [ -z "$1" ]; then
 	TARGET="master"
@@ -16,7 +11,8 @@ else
 	TARGET="$1"
 fi
 
-git checkout "$TARGET" && \
-git pull -r && \
-git checkout "$BRANCH" && \
-git rebase --preserve-merges "$TARGET"
+# Update the local branch with the remote. Assumes remote is "origin".
+git fetch origin $TARGET:$TARGET
+
+# Rebase against target branch, automatically stashing and unstashing
+git rebase --preserve-merges --autostash "$TARGET"
