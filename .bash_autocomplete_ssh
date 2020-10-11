@@ -1,0 +1,8 @@
+_ssh() 
+{
+    local cur use
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    use=$(grep '^Host' ~/.ssh/config ~/.ssh/config.d/* 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
+    COMPREPLY=( $(compgen -W "$use" -- ${cur}) )
+}
+complete -F _ssh ssh
