@@ -6,7 +6,7 @@
 #        and unstashing any unstaged changes
 
 if [ -z "$1" ]; then
-	TARGET="master"
+	TARGET="`git branch -l main master --format '%(refname:short)' | head -n1`"
 else
 	TARGET="$1"
 fi
