@@ -15,4 +15,4 @@ fi
 git fetch origin $TARGET:$TARGET
 
 # Rebase against target branch, automatically stashing and unstashing
-git rebase --preserve-merges --autostash "$TARGET"
+git rebase --rebase-merges --autostash "$TARGET"
